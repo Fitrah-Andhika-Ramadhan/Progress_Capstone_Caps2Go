@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Restaurant UMKM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    
+</head>
+<body>
+    <div id="sidebar">
+        <div class="px-4 mb-4">
+            <h4 class="text-white">Restaurant UMKM</h4>
+            <small class="text-white-50">Dashboard Monitoring</small>
+        </div>
+        <hr class="mx-3 bg-white-50">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-section="overview">
+                    <i class="bi bi-house-door me-2"></i>Overview
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="orders">
+                    <i class="bi bi-cart me-2"></i>Pesanan
+                    <span class="notification-badge">5</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="kitchen">
+                    <i class="bi bi-fire me-2"></i>Dapur
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="inventory">
+                    <i class="bi bi-box-seam me-2"></i>Inventori
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="tables">
+                    <i class="bi bi-grid-3x3 me-2"></i>Meja
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="staff">
+                    <i class="bi bi-people me-2"></i>Staff
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-section="reports">
+                    <i class="bi bi-file-earmark-text me-2"></i>Laporan
+                </a>
+            </li>
+        </ul>
+
+        <hr class="mx-3 bg-white-50">
+        <div class="px-4">
+            <h6 class="text-white-50">Status Dapur</h6>
+            <div class="progress mb-3">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 75%"></div>
+            </div>
+            <small class="text-white-50">Efisiensi: 75%</small>
+        </div>
+    </div>
+
+    <div id="content">
+        <!-- Overview Section -->
+        <section id="overview" class="active-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Dashboard Overview</h2>
+                <div class="d-flex gap-3">
+                    <select class="form-select" id="periodFilter">
+                        <option value="today">Hari Ini</option>
+                        <option value="week">Minggu Ini</option>
+                        <option value="month">Bulan Ini</option>
+                    </select>
+                    <button class="btn btn-primary">
+                        <i class="bi bi-download me-2"></i>Download Laporan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Total Pendapatan</h6>
+                            <h3 class="mb-0" id="totalRevenue">Rp 0</h3>
+                            <small class="text-white-50">
+                                <i class="bi bi-arrow-up"></i> +15% dari kemarin
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Pesanan Hari Ini</h6>
+                            <h3 class="mb-0" id="totalOrders">0</h3>
+                            <small class="text-white-50">
+                                <i class="bi bi-arrow-up"></i> 25 pesanan/jam
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Rata-rata Pesanan</h6>
+                            <h3 class="mb-0" id="avgOrderValue">Rp 0</h3>
+                            <small class="text-white-50">
+                                <i class="bi bi-arrow-down"></i> -5% dari minggu lalu
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <h6 class="card-title">Okupansi Meja</h6>
+                            <h3 class="mb-0" id="tableOccupancy">0%</h3>
+                            <small class="text-white-50">
+                                <i class="bi bi-arrow-up"></i> 8 meja tersedia
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Tren Penjualan</h5>
+                            <div class="chart-container">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Menu Terpopuler</h5>
+                            <div class="chart-container">
+                                <canvas id="menuChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kitchen Status -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Status Dapur</h5>
+                            <div class="kitchen-order urgent">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Meja #12 - 4 Porsi</h6>
+                                        <small>Nasi Goreng Spesial (2), Ayam Bakar (2)</small>
+                                    </div>
+                                    <span class="badge bg-danger">15:00</span>
+                                </div>
+                            </div>
+                            <div class="kitchen-order normal">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Meja #8 - 2 Porsi</h6>
+                                        <small>Sate Ayam (1), Sop Iga (1)</small>
+                                    </div>
+                                    <span class="badge bg-primary">10:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Peringatan Stok</h5>
+                            <div class="inventory-alert alert-critical">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Ayam Potong</h6>
+                                        <small>Stok tersisa: 2 kg</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger">
+                                        Restock
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="inventory-alert alert-low">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">Beras</h6>
+                                        <small>Stok tersisa: 10 kg</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-warning">
+                                        Restock
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Status -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Status Meja</h5>
+                    <div class="row" id="tableGrid">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <!-- Pesanan Section -->
+        <section id="orders" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Manajemen Pesanan</h2>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+                        <i class="bi bi-plus-circle me-2"></i>Pesanan Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Order Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Status Pesanan</label>
+                            <select class="form-select" id="orderStatusFilter">
+                                <option value="all">Semua Status</option>
+                                <option value="new">Baru</option>
+                                <option value="processing">Diproses</option>
+                                <option value="ready">Siap</option>
+                                <option value="completed">Selesai</option>
+                                <option value="cancelled">Dibatalkan</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tipe Pesanan</label>
+                            <select class="form-select" id="orderTypeFilter">
+                                <option value="all">Semua Tipe</option>
+                                <option value="dine-in">Makan di Tempat</option>
+                                <option value="takeaway">Bawa Pulang</option>
+                                <option value="delivery">Pengantaran</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="orderDateFilter">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Cari</label>
+                            <input type="text" class="form-control" placeholder="No. Pesanan/Meja">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Orders -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Pesanan Aktif</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>No. Pesanan</th>
+                                            <th>Meja/Tipe</th>
+                                            <th>Item</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="activeOrdersTable">
+                                        <!-- Filled by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Ringkasan Pesanan</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Pesanan Hari Ini</label>
+                                <h3 id="todayOrderCount">0</h3>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Total Pendapatan</label>
+                                <h3 id="todayOrderRevenue">Rp 0</h3>
+                            </div>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 40%">
+                                    Selesai (40%)
+                                </div>
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 35%">
+                                    Proses (35%)
+                                </div>
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 25%">
+                                    Baru (25%)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order History -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Riwayat Pesanan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>No. Pesanan</th>
+                                    <th>Tipe</th>
+                                    <th>Item</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderHistoryTable">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="kitchen" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Manajemen Dapur</h2>
+                <div class="d-flex gap-3">
+                    <select class="form-select">
+                        <option value="all">Semua Kategori</option>
+                        <option value="main">Menu Utama</option>
+                        <option value="appetizer">Appetizer</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="printOrders()">
+                        <i class="bi bi-printer me-2"></i>Print Pesanan
+                    </button>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addOrderModal">
+                        <i class="bi bi-plus-lg me-2"></i>Tambah Pesanan
+                    </button>
+                </div>
+            </div>
+        
+            <!-- Kitchen Status Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Pesanan Menunggu</h6>
+                            <h3 class="mb-0" id="pendingOrders">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h6 class="card-title">Sedang Diproses</h6>
+                            <h3 class="mb-0" id="processingOrders">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Siap Saji</h6>
+                            <h3 class="mb-0" id="readyOrders">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">Rata-rata Waktu</h6>
+                            <h3 class="mb-0" id="avgPrepTime">0 min</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Order Queues -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Pesanan Baru</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="kitchen-queue" id="newOrderQueue"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-warning">
+                            <h5 class="card-title mb-0">Sedang Diproses</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="kitchen-queue" id="processingQueue"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="card-title mb-0">Siap Saji</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="kitchen-queue" id="readyQueue"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Add Order Modal -->
+            <div class="modal fade" id="addOrderModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tambah Pesanan Baru</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addOrderForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Nomor Meja</label>
+                                    <input type="text" class="form-control" id="tableNumber" required>
+                                </div>
+                                <div id="itemsContainer">
+                                    <div class="item-entry mb-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Menu</label>
+                                                <input type="text" class="form-control menu-name" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Jumlah</label>
+                                                <input type="number" class="form-control quantity" min="1" required>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">&nbsp;</label>
+                                                <button type="button" class="btn btn-danger d-block" onclick="removeItem(this)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary mb-3" onclick="addItemField()">
+                                    <i class="bi bi-plus-lg me-2"></i>Tambah Item
+                                </button>
+                                <div class="mb-3">
+                                    <label class="form-label">Catatan</label>
+                                    <textarea class="form-control" id="orderNotes" rows="2"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-primary" onclick="submitOrder()">Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inventori Section -->
+        <section id="inventory" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Manajemen Inventori</h2>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStockModal">
+                        <i class="bi bi-plus-circle me-2"></i>Tambah Stok
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newItemModal">
+                        <i class="bi bi-plus-circle me-2"></i>Item Baru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Summary -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-muted">Total Item</h6>
+                            <h3 id="totalItems">150</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-muted">Stok Rendah</h6>
+                            <h3 id="lowStockItems">12</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-warning" style="width: 35%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-muted">Perlu Restock</h6>
+                            <h3 id="needRestock">5</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-danger" style="width: 15%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-muted">Nilai Inventori</h6>
+                            <h3 id="inventoryValue">Rp 15.5M</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-info" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory List -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="card-title mb-0">Daftar Inventori</h5>
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Cari item...">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Item</th>
+                                    <th>Kategori</th>
+                                    <th>Stok</th>
+                                    <th>Unit</th>
+                                    <th>Harga/Unit</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTable">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Meja Section -->
+        <section id="tables" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Manajemen Meja</h2>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReservationModal">
+                        <i class="bi bi-calendar-plus me-2"></i>Reservasi Baru
+                    </button>
+                </div>
+            </div>
+    <!-- Table Status Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Meja Tersedia</h6>
+                    <h3 class="mb-0" id="availableTables">8</h3>
+                    <small>dari total 20 meja</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Meja Terisi</h6>
+                    <h3 class="mb-0" id="occupiedTables">10</h3>
+                    <small>rata-rata 45 menit</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h6 class="card-title">Reservasi Hari Ini</h6>
+                    <h3 class="mb-0" id="todayReservations">5</h3>
+                    <small>2 dalam 1 jam ke depan</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Rata-rata Waktu Tunggu</h6>
+                    <h3 class="mb-0" id="avgWaitTime">15 min</h3>
+                    <small>untuk meja kosong</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Layout -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Layout Meja</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-layout">
+                        <div class="row" id="restaurantLayout">
+                            <!-- Akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Reservasi Hari Ini</h5>
+                </div>
+                <div class="card-body">
+                    <div class="reservations-list" id="todayReservationsList">
+                        <!-- Akan diisi oleh JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservation Calendar -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Kalender Reservasi</h5>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary" id="prevMonth">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="currentMonth">
+                        Desember 2024
+                    </button>
+                    <button class="btn btn-outline-secondary" id="nextMonth">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th>Minggu</th>
+                            <th>Senin</th>
+                            <th>Selasa</th>
+                            <th>Rabu</th>
+                            <th>Kamis</th>
+                            <th>Jumat</th>
+                            <th>Sabtu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendarBody">
+                        <!-- Akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Reservations -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Riwayat Reservasi</h5>
+                <div class="input-group" style="width: 300px;">
+                    <input type="date" class="form-control" id="reservationHistoryDate">
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID Reservasi</th>
+                            <th>Nama Tamu</th>
+                            <th>Tanggal</th>
+                            <th>Waktu</th>
+                            <th>Jumlah Tamu</th>
+                            <th>No. Meja</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationHistoryTable">
+                        <!-- Akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </section>
+
+    <!-- Modal Reservasi Baru -->
+    <div class="modal fade" id="newReservationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reservasi Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reservationForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Tamu</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Waktu</label>
+                            <input type="time" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah Tamu</label>
+                            <input type="number" class="form-control" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">No. Meja</label>
+                            <select class="form-select" required>
+                                <option value="">Pilih Meja</option>
+                                <!-- Akan diisi oleh JavaScript -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary">Simpan Reservasi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Staff Section -->
+    <section id="staff" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Manajemen Staff</h2>
+            <div class="d-flex gap-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                    <i class="bi bi-person-plus me-2"></i>Tambah Staff
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+                    <i class="bi bi-calendar-week me-2"></i>Atur Jadwal
+                </button>
+            </div>
+        </div>
+    
+        <!-- Staff Summary -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Staff</h6>
+                        <h3 class="mb-0" id="totalStaff">24</h3>
+                        <small>Aktif</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Hadir Hari Ini</h6>
+                        <h3 class="mb-0" id="presentToday">20</h3>
+                        <small>Staff</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <h6 class="card-title">Cuti/Izin</h6>
+                        <h3 class="mb-0" id="onLeave">3</h3>
+                        <small>Staff</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h6 class="card-title">Performa Tim</h6>
+                        <h3 class="mb-0" id="teamPerformance">85%</h3>
+                        <small>Rata-rata</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Staff Management Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#activeStaff">Staff Aktif</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#schedule">Jadwal Shift</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#attendance">Absensi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#performance">Performa</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Active Staff Tab -->
+                    <div class="tab-pane fade show active" id="activeStaff">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex gap-3">
+                                <select class="form-select" id="departmentFilter">
+                                    <option value="all">Semua Departemen</option>
+                                    <option value="kitchen">Dapur</option>
+                                    <option value="service">Pelayanan</option>
+                                    <option value="cashier">Kasir</option>
+                                </select>
+                                <select class="form-select" id="shiftFilter">
+                                    <option value="all">Semua Shift</option>
+                                    <option value="morning">Pagi</option>
+                                    <option value="afternoon">Siang</option>
+                                    <option value="evening">Malam</option>
+                                </select>
+                            </div>
+                            <div class="input-group" style="width: 300px;">
+                                <input type="text" class="form-control" placeholder="Cari staff...">
+                                <button class="btn btn-outline-secondary">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID Staff</th>
+                                        <th>Nama</th>
+                                        <th>Departemen</th>
+                                        <th>Posisi</th>
+                                        <th>Shift</th>
+                                        <th>Status</th>
+                                        <th>Performa</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="staffTable">
+                                    <!-- Akan diisi oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+    
+                    <!-- Schedule Tab -->
+                    <div class="tab-pane fade" id="schedule">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Shift Pagi (06:00 - 14:00)</h6>
+                                        <div id="morningShiftStaff">
+                                            <!-- Akan diisi oleh JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Shift Siang (14:00 - 22:00)</h6>
+                                        <div id="afternoonShiftStaff">
+                                            <!-- Akan diisi oleh JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Shift Malam (22:00 - 06:00)</h6>
+                                        <div id="eveningShiftStaff">
+                                            <!-- Akan diisi oleh JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="shiftCalendar">
+                                    <!-- Kalender Shift akan diisi oleh JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Attendance Tab -->
+                    <div class="tab-pane fade" id="attendance">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Absensi Hari Ini</h6>
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nama Staff</th>
+                                                        <th>Shift</th>
+                                                        <th>Jam Masuk</th>
+                                                        <th>Jam Keluar</th>
+                                                        <th>Status</th>
+                                                        <th>Keterangan</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="attendanceTable">
+                                                    <!-- Akan diisi oleh JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Performance Tab -->
+                    <div class="tab-pane fade" id="performance">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Grafik Performa Staff</h6>
+                                        <canvas id="staffPerformanceChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Top Performers</h6>
+                                        <div id="topPerformers">
+                                            <!-- Akan diisi oleh JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modal Tambah Staff Baru -->
+    <div class="modal fade" id="addStaffModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Staff Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStaffForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Departemen</label>
+                            <select class="form-select" required>
+                                <option value="">Pilih Departemen</option>
+                                <option value="kitchen">Dapur</option>
+                                <option value="service">Pelayanan</option>
+                                <option value="cashier">Kasir</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Posisi</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Shift Default</label>
+                            <select class="form-select" required>
+                                <option value="">Pilih Shift</option>
+                                <option value="morning">Pagi</option>
+                                <option value="afternoon">Siang</option>
+                                <option value="evening">Malam</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kontak</label>
+                            <input type="tel" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Alamat</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Atur Jadwal -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Atur Jadwal Staff</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Staff Tersedia</h6>
+                                    <div id="availableStaff" class="staff-list">
+                                        <!-- Akan diisi oleh JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Jadwal Shift</h6>
+                                    <div id="shiftScheduler">
+                                        <!-- Akan diisi oleh JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary">Simpan Jadwal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Reports Section -->
+    <section id="reports" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Laporan & Analisis</h2>
+            <div class="d-flex gap-3">
+                <select class="form-select" id="reportPeriodFilter">
+                    <option value="daily">Harian</option>
+                    <option value="weekly">Mingguan</option>
+                    <option value="monthly">Bulanan</option>
+                    <option value="yearly">Tahunan</option>
+                </select>
+                <input type="date" class="form-control" id="reportDateFilter">
+                <button class="btn btn-primary" id="generateReportBtn">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Generate Laporan
+                </button>
+            </div>
+        </div>
+    
+        <!-- Report Statistics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Pendapatan</h6>
+                        <h3 id="reportTotalRevenue">Rp 25.5M</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">+15%</span>
+                            <small class="text-muted">vs periode sebelumnya</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Transaksi</h6>
+                        <h3 id="reportTotalTransactions">1,234</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">+8%</span>
+                            <small class="text-muted">vs periode sebelumnya</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Rata-rata Transaksi</h6>
+                        <h3 id="reportAvgTransaction">Rp 150K</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2">-3%</span>
+                            <small class="text-muted">vs periode sebelumnya</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Profit Margin</h6>
+                        <h3 id="reportProfitMargin">32%</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2">+5%</span>
+                            <small class="text-muted">vs periode sebelumnya</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Report Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#salesReport">Laporan Penjualan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#inventoryReport">Laporan Inventori</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#staffReport">Laporan Staff</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#financialReport">Laporan Keuangan</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Sales Report Tab -->
+                    <div class="tab-pane fade show active" id="salesReport">
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Grafik Penjualan</h6>
+                                        <canvas id="salesReportChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Menu Terlaris</h6>
+                                        <div id="topSellingItems">
+                                            <!-- Akan diisi JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Detail Penjualan</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="salesDetailTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Tanggal</th>
+                                                <th>Item</th>
+                                                <th>Kategori</th>
+                                                <th>Kuantitas</th>
+                                                <th>Total Penjualan</th>
+                                                <th>Profit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Akan diisi JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="tab-pane fade" id="inventoryReport">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Pergerakan Stok</h6>
+                                        <canvas id="inventoryMovementChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Item Kritis</h6>
+                                        <canvas id="criticalItemsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Detail Item Kritis</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Item</th>
+                                                        <th>Stok</th>
+                                                        <th>Min. Stok</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="criticalItemsTable">
+                                                    <!-- Filled by JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="tab-pane fade" id="staffReport">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Tren Performa Staff</h6>
+                                        <canvas id="staffPerformanceReportChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Breakdown Performa</h6>
+                                        <canvas id="performanceBreakdownChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Statistik Kehadiran</h6>
+                                        <canvas id="staffAttendanceChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Metrik Kehadiran Detail</h6>
+                                        <canvas id="attendanceMetricsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+    
+                    <div class="tab-pane fade" id="financialReport">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Laporan Laba/Rugi</h6>
+                                        <canvas id="profitLossChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Pendapatan</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="incomeChart"></canvas>
+                                        <div class="table-responsive mt-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Kategori</th>
+                                                        <th>Jumlah</th>
+                                                        <th>Persentase</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="incomeTable">
+                                                    <!-- Filled by JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Pengeluaran</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="expenseChart"></canvas>
+                                        <div class="table-responsive mt-4">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Kategori</th>
+                                                        <th>Jumlah</th>
+                                                        <th>Persentase</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="expenseTable">
+                                                    <!-- Filled by JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    </section>
+                
+
+        
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
