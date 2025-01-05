@@ -3586,3 +3586,278 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Inventory Management Functions
+const InventoryFunctions = {
+    // Add New Stock Modal Functionality
+    initializeAddStockModal() {
+        const modal = `
+            <div class="modal fade" id="addStockModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Tambah Stok</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addStockForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Item</label>
+                                    <select class="form-select" id="stockItemSelect" required>
+                                        <option value="">Pilih Item</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Jumlah Penambahan</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="stockAmount" required min="1">
+                                        <span class="input-group-text" id="stockUnit">Unit</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Harga per Unit</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Rp</span>
+                                        <input type="number" class="form-control" id="stockPrice" required min="0">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Supplier</label>
+                                    <input type="text" class="form-control" id="stockSupplier">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Catatan</label>
+                                    <textarea class="form-control" id="stockNotes" rows="2"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-primary" onclick="InventoryFunctions.submitAddStock()">Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modal);
+    },
+
+    // Add New Item Modal Functionality
+    initializeNewItemModal() {
+        const modal = `
+            <div class="modal fade" id="newItemModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Item Baru</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="newItemForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Item</label>
+                                    <input type="text" class="form-control" id="itemName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Kategori</label>
+                                    <select class="form-select" id="itemCategory" required>
+                                        <option value="">Pilih Kategori</option>
+                                        <option value="Bahan Baku">Bahan Baku</option>
+                                        <option value="Bumbu">Bumbu</option>
+                                        <option value="Minuman">Minuman</option>
+                                        <option value="Pembersih">Pembersih</option>
+                                        <option value="Peralatan Dapur">Peralatan Dapur</option>
+                                    </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Stok Awal</label>
+                                            <input type="number" class="form-control" id="itemInitialStock" required min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Unit</label>
+                                            <select class="form-select" id="itemUnit" required>
+                                                <option value="">Pilih Unit</option>
+                                                <option value="kg">Kilogram (kg)</option>
+                                                <option value="gram">Gram (g)</option>
+                                                <option value="liter">Liter (L)</option>
+                                                <option value="pcs">Pieces (pcs)</option>
+                                                <option value="pack">Pack</option>
+                                                <option value="botol">Botol</option>
+                                                <option value="karton">Karton</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Harga per Unit</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">Rp</span>
+                                                <input type="number" class="form-control" id="itemPrice" required min="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Stok Minimal</label>
+                                            <input type="number" class="form-control" id="itemMinStock" required min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Deskripsi</label>
+                                    <textarea class="form-control" id="itemDescription" rows="2"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="button" class="btn btn-primary" onclick="InventoryFunctions.submitNewItem()">Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modal);
+    },
+
+    // Submit Add Stock Function
+    submitAddStock() {
+        const form = document.getElementById('addStockForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const itemSelect = document.getElementById('stockItemSelect');
+        const amount = parseInt(document.getElementById('stockAmount').value);
+        const price = parseInt(document.getElementById('stockPrice').value);
+
+        // Find item in inventory
+        const item = InventoryManagement.inventory.find(i => i.id === itemSelect.value);
+        if (item) {
+            // Update stock
+            item.stock += amount;
+            item.price = price; // Update price
+            item.lastUpdated = new Date();
+
+            // Update UI
+            InventoryManagement.updateInventoryStatus();
+            InventoryManagement.updateDashboard();
+            InventoryManagement.updateInventoryTable();
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addStockModal'));
+            modal.hide();
+            form.reset();
+
+            // Show success notification
+            this.showNotification('Stok berhasil ditambahkan!', 'success');
+        }
+    },
+
+    // Submit New Item Function
+    submitNewItem() {
+        const form = document.getElementById('newItemForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const newItem = {
+            id: this.generateItemId(),
+            name: document.getElementById('itemName').value,
+            category: document.getElementById('itemCategory').value,
+            stock: parseInt(document.getElementById('itemInitialStock').value),
+            unit: document.getElementById('itemUnit').value,
+            price: parseInt(document.getElementById('itemPrice').value),
+            minStock: parseInt(document.getElementById('itemMinStock').value),
+            description: document.getElementById('itemDescription').value,
+            lastUpdated: new Date(),
+            status: 'Normal'
+        };
+
+        // Add to inventory
+        InventoryManagement.inventory.push(newItem);
+        
+        // Update UI
+        InventoryManagement.updateInventoryStatus();
+        InventoryManagement.updateDashboard();
+        InventoryManagement.updateInventoryTable();
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('newItemModal'));
+        modal.hide();
+        form.reset();
+
+        // Show success notification
+        this.showNotification('Item baru berhasil ditambahkan!', 'success');
+    },
+
+    // Generate unique item ID
+    generateItemId() {
+        const lastId = InventoryManagement.inventory.length > 0 
+            ? parseInt(InventoryManagement.inventory[InventoryManagement.inventory.length - 1].id.slice(3))
+            : 0;
+        return `INV${String(lastId + 1).padStart(3, '0')}`;
+    },
+
+    // Update stock item select options
+    updateStockItemSelect() {
+        const select = document.getElementById('stockItemSelect');
+        if (!select) return;
+
+        select.innerHTML = '<option value="">Pilih Item</option>' + 
+            InventoryManagement.inventory.map(item => 
+                `<option value="${item.id}" data-unit="${item.unit}">${item.name} (${item.stock} ${item.unit})</option>`
+            ).join('');
+
+        // Add change event listener
+        select.addEventListener('change', () => {
+            const selectedOption = select.selectedOptions[0];
+            if (selectedOption) {
+                document.getElementById('stockUnit').textContent = selectedOption.dataset.unit || 'Unit';
+            }
+        });
+    },
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    },
+
+    // Initialize everything
+    initialize() {
+        this.initializeAddStockModal();
+        this.initializeNewItemModal();
+        
+        // Add event listeners to buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update stock select options when modal is shown
+            document.getElementById('addStockModal').addEventListener('show.bs.modal', () => {
+                this.updateStockItemSelect();
+            });
+        });
+    }
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    InventoryFunctions.initialize();
+});
