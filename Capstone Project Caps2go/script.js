@@ -3286,3 +3286,303 @@ document.addEventListener('DOMContentLoaded', () => {
         downloadButton.addEventListener('click', downloadReport);
     }
 });
+
+// Menu items data with prices
+const menuItems = {
+    'Nasi Goreng Spesial': 35000,
+    'Ayam Bakar': 40000,
+    'Sate Ayam': 30000,
+    'Sop Iga': 45000,
+    'Mie Goreng': 30000,
+    'Capcay': 35000,
+    'Es Teh Manis': 8000,
+    'Juice Alpukat': 15000
+};
+
+// Initialize order modal functionality
+function initializeNewOrderModal() {
+    // Add event listener to new order button
+    const newOrderBtn = document.querySelector('button[data-bs-target="#newOrderModal"]');
+    if (newOrderBtn) {
+        // Ensure modal HTML exists
+        createNewOrderModal();
+    }
+
+    // Initialize form event listeners
+    const orderForm = document.getElementById('newOrderForm');
+    if (orderForm) {
+        orderForm.addEventListener('submit', handleNewOrder);
+    }
+
+    // Initialize menu item select options
+    updateMenuSelections();
+}
+
+// Create modal HTML if it doesn't exist
+function createNewOrderModal() {
+    if (!document.getElementById('newOrderModal')) {
+        const modalHTML = `
+            <div class="modal fade" id="newOrderModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Pesanan Baru</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="newOrderForm">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tipe Pesanan</label>
+                                        <select class="form-select" name="orderType" required>
+                                            <option value="dine-in">Makan di Tempat</option>
+                                            <option value="takeaway">Bawa Pulang</option>
+                                            <option value="delivery">Pengantaran</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6" id="tableNumberContainer">
+                                        <label class="form-label">Nomor Meja</label>
+                                        <select class="form-select" name="tableNumber">
+                                            ${generateTableOptions()}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div id="menuItemsContainer">
+                                    <div class="menu-item row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Menu</label>
+                                            <select class="form-select menu-select" name="menuItems[]" required>
+                                                <option value="">Pilih Menu</option>
+                                                ${generateMenuOptions()}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Jumlah</label>
+                                            <input type="number" class="form-control quantity-input" 
+                                                   name="quantities[]" min="1" value="1" required>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button type="button" class="btn btn-danger d-block w-100 remove-item">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-secondary mb-3" id="addMenuItem">
+                                    <i class="bi bi-plus-lg"></i> Tambah Menu
+                                </button>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Catatan</label>
+                                    <textarea class="form-control" name="notes" rows="2"></textarea>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Total</label>
+                                        <h4 id="orderTotal">Rp 0</h4>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" form="newOrderForm" class="btn btn-primary">Simpan Pesanan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        initializeModalEventListeners();
+    }
+}
+
+// Generate options for table numbers
+function generateTableOptions() {
+    let options = '<option value="">Pilih Meja</option>';
+    for (let i = 1; i <= 20; i++) {
+        options += `<option value="${i}">Meja ${i}</option>`;
+    }
+    return options;
+}
+
+// Generate options for menu items
+function generateMenuOptions() {
+    return Object.entries(menuItems)
+        .map(([name, price]) => `<option value="${name}">${name} - Rp ${formatNumber(price)}</option>`)
+        .join('');
+}
+
+// Initialize modal event listeners
+function initializeModalEventListeners() {
+    const modal = document.getElementById('newOrderModal');
+    if (!modal) return;
+
+    // Handle order type change
+    const orderTypeSelect = modal.querySelector('select[name="orderType"]');
+    const tableContainer = document.getElementById('tableNumberContainer');
+    
+    orderTypeSelect.addEventListener('change', (e) => {
+        tableContainer.style.display = e.target.value === 'dine-in' ? 'block' : 'none';
+    });
+
+    // Handle add menu item button
+    const addMenuBtn = document.getElementById('addMenuItem');
+    addMenuBtn.addEventListener('click', addMenuItem);
+
+    // Handle remove menu item buttons
+    modal.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-item') || 
+            e.target.parentElement.classList.contains('remove-item')) {
+            const menuItem = e.target.closest('.menu-item');
+            if (modal.querySelectorAll('.menu-item').length > 1) {
+                menuItem.remove();
+                updateOrderTotal();
+            }
+        }
+    });
+
+    // Handle menu item and quantity changes
+    modal.addEventListener('change', (e) => {
+        if (e.target.classList.contains('menu-select') || 
+            e.target.classList.contains('quantity-input')) {
+            updateOrderTotal();
+        }
+    });
+}
+
+// Add new menu item row
+function addMenuItem() {
+    const container = document.getElementById('menuItemsContainer');
+    const newItem = document.createElement('div');
+    newItem.className = 'menu-item row mb-3';
+    newItem.innerHTML = `
+        <div class="col-md-6">
+            <label class="form-label">Menu</label>
+            <select class="form-select menu-select" name="menuItems[]" required>
+                <option value="">Pilih Menu</option>
+                ${generateMenuOptions()}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Jumlah</label>
+            <input type="number" class="form-control quantity-input" 
+                   name="quantities[]" min="1" value="1" required>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <button type="button" class="btn btn-danger d-block w-100 remove-item">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(newItem);
+}
+
+// Update order total
+function updateOrderTotal() {
+    const modal = document.getElementById('newOrderModal');
+    let total = 0;
+
+    modal.querySelectorAll('.menu-item').forEach(item => {
+        const menuSelect = item.querySelector('.menu-select');
+        const quantityInput = item.querySelector('.quantity-input');
+        
+        if (menuSelect.value && menuItems[menuSelect.value]) {
+            total += menuItems[menuSelect.value] * parseInt(quantityInput.value || 0);
+        }
+    });
+
+    document.getElementById('orderTotal').textContent = `Rp ${formatNumber(total)}`;
+}
+
+// Handle new order submission
+function handleNewOrder(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const orderData = {
+        type: formData.get('orderType'),
+        tableNumber: formData.get('tableNumber'),
+        items: [],
+        notes: formData.get('notes'),
+        status: 'Baru',
+        timestamp: new Date().toISOString()
+    };
+
+    // Get menu items and quantities
+    const menuItems = formData.getAll('menuItems[]');
+    const quantities = formData.getAll('quantities[]');
+
+    menuItems.forEach((item, index) => {
+        if (item) {
+            orderData.items.push({
+                name: item,
+                quantity: parseInt(quantities[index]),
+                price: window.menuItems[item]
+            });
+        }
+    });
+
+    // Add order to the system
+    if (typeof OrderManagement !== 'undefined') {
+        OrderManagement.addNewOrder(orderData);
+    }
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('newOrderModal'));
+    modal.hide();
+
+    // Reset form
+    e.target.reset();
+    
+    // Show success message
+    showNotification('Pesanan berhasil ditambahkan!', 'success');
+}
+
+// Helper function to format numbers
+function formatNumber(number) {
+    return new Intl.NumberFormat('id-ID').format(number);
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} notification-toast`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+        animation: slideIn 0.5s ease-out;
+    `;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.5s ease-in';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initializeNewOrderModal);
+
+// Add necessary styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); }
+        to { transform: translateX(100%); }
+    }
+`;
+document.head.appendChild(style);
