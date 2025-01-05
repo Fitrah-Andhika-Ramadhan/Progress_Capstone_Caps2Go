@@ -3216,3 +3216,73 @@ document.addEventListener('DOMContentLoaded', () => {
 salesReportData.updateSalesDetailsTable();
 salesReportData.startRealTimeUpdates();
 });
+
+
+
+// Function to generate and download report
+function downloadReport() {
+    const period = document.getElementById('periodFilter').value;
+    const timestamp = new Date().toLocaleString('id-ID');
+    
+    // Get current stats
+    const totalRevenue = document.getElementById('totalRevenue').textContent;
+    const totalOrders = document.getElementById('totalOrders').textContent;
+    const avgOrderValue = document.getElementById('avgOrderValue').textContent;
+    const tableOccupancy = document.getElementById('tableOccupancy').textContent;
+
+    // Create report content
+    const reportContent = `
+LAPORAN RESTORAN UMKM
+=====================
+Periode: ${period}
+Tanggal Laporan: ${timestamp}
+
+RINGKASAN KINERJA
+----------------
+Total Pendapatan: ${totalRevenue}
+Total Pesanan: ${totalOrders}
+Rata-rata Pesanan: ${avgOrderValue}
+Okupansi Meja: ${tableOccupancy}
+
+DETAIL MENU TERPOPULER
+---------------------
+1. Nasi Goreng: 30%
+2. Ayam Bakar: 25%
+3. Sate Ayam: 20%
+4. Sop Iga: 15%
+5. Es Teh: 10%
+
+STATUS DAPUR
+-----------
+Efisiensi: 75%
+Pesanan Menunggu: ${document.getElementById('pendingOrders')?.textContent || '0'}
+Pesanan Diproses: ${document.getElementById('processingOrders')?.textContent || '0'}
+Pesanan Siap: ${document.getElementById('readyOrders')?.textContent || '0'}
+
+PERINGATAN STOK
+--------------
+Kritis:
+- Ayam Potong (2 kg)
+Perlu Restock:
+- Beras (10 kg)
+`;
+
+    // Create blob and download
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `laporan-restoran-${period}-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
+// Add event listener to download button
+document.addEventListener('DOMContentLoaded', () => {
+    const downloadButton = document.querySelector('#content button.btn-primary');
+    if (downloadButton) {
+        downloadButton.addEventListener('click', downloadReport);
+    }
+});
