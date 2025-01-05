@@ -3861,3 +3861,259 @@ const InventoryFunctions = {
 document.addEventListener('DOMContentLoaded', () => {
     InventoryFunctions.initialize();
 });
+
+// Report Generation System
+const ReportGenerator = {
+    // Initialize system
+    initialize() {
+        this.setupEventListeners();
+        this.startRealTimeUpdates();
+    },
+
+    // Setup Event Listeners
+    setupEventListeners() {
+        // Period filter change
+        document.getElementById('reportPeriodFilter')?.addEventListener('change', () => {
+            this.updateReportData();
+        });
+
+        // Date filter change
+        document.getElementById('reportDateFilter')?.addEventListener('change', () => {
+            this.updateReportData();
+        });
+
+        // Generate report button
+        document.getElementById('generateReportBtn')?.addEventListener('click', () => {
+            this.generateReport();
+        });
+    },
+
+    // Generate Report
+    generateReport() {
+        const period = document.getElementById('reportPeriodFilter').value;
+        const date = document.getElementById('reportDateFilter').value;
+        const timestamp = new Date().toLocaleString('id-ID');
+
+        // Get current statistics
+        const totalRevenue = document.getElementById('reportTotalRevenue').textContent;
+        const totalTransactions = document.getElementById('reportTotalTransactions').textContent;
+        const avgTransaction = document.getElementById('reportAvgTransaction').textContent;
+        const profitMargin = document.getElementById('reportProfitMargin').textContent;
+
+        // Create report content
+        const reportContent = `
+LAPORAN BISNIS RESTORAN UMKM
+============================
+Periode: ${period}
+Tanggal: ${date}
+Waktu Pembuatan: ${timestamp}
+
+RINGKASAN KEUANGAN
+-----------------
+Total Pendapatan: ${totalRevenue}
+Total Transaksi: ${totalTransactions}
+Rata-rata Transaksi: ${avgTransaction}
+Profit Margin: ${profitMargin}
+
+LAPORAN PENJUALAN
+----------------
+Top 5 Menu Terlaris:
+1. Nasi Goreng Spesial - 45 porsi
+2. Ayam Bakar - 38 porsi
+3. Sate Ayam - 52 porsi
+4. Sop Iga - 25 porsi
+5. Es Teh Manis - 85 porsi
+
+LAPORAN INVENTORI
+----------------
+Item Kritis:
+- Ayam Potong (2 kg)
+- Beras (10 kg)
+- Minyak Goreng (5 L)
+
+Pergerakan Stok Tertinggi:
+1. Beras: -50kg
+2. Ayam: -30kg
+3. Minyak Goreng: -20L
+
+LAPORAN STAFF
+------------
+Total Staff: ${document.getElementById('totalStaff')?.textContent || '24'} orang
+Kehadiran: ${document.getElementById('presentToday')?.textContent || '20'} orang
+Performa Tim: ${document.getElementById('teamPerformance')?.textContent || '85%'}
+
+ANALISIS KEUANGAN
+----------------
+Pendapatan vs Target: 105%
+Pengeluaran vs Budget: 95%
+Profit Margin: ${profitMargin}
+ROI: 25%
+
+REKOMENDASI
+-----------
+1. Restok item kritis segera
+2. Evaluasi menu dengan penjualan rendah
+3. Optimalkan jadwal staff berdasarkan jam sibuk
+4. Pertimbangkan promosi untuk menu baru
+
+CATATAN TAMBAHAN
+---------------
+- Peak hours: 11:00-13:00 dan 18:00-20:00
+- Customer satisfaction rate: 4.5/5
+- Average service time: 15 menit
+`;
+
+        // Create blob and download
+        const blob = new Blob([reportContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `laporan-restoran-${period}-${date}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        // Show success notification
+        this.showNotification('Laporan berhasil digenerate!', 'success');
+    },
+
+    // Update Report Data
+    updateReportData() {
+        // Generate random data for demonstration
+        const randomIncrease = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        // Update statistics with random increases
+        this.updateStatistics({
+            totalRevenue: 25500000 + randomIncrease(100000, 500000),
+            totalTransactions: 1234 + randomIncrease(5, 20),
+            avgTransaction: 150000 + randomIncrease(1000, 5000),
+            profitMargin: 32 + randomIncrease(-2, 2)
+        });
+
+        // Update charts
+        this.updateCharts();
+    },
+
+    // Update Statistics
+    updateStatistics(data) {
+        // Format currency
+        const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
+        }).format(amount);
+
+        // Update DOM elements
+        document.getElementById('reportTotalRevenue').textContent = formatCurrency(data.totalRevenue);
+        document.getElementById('reportTotalTransactions').textContent = data.totalTransactions;
+        document.getElementById('reportAvgTransaction').textContent = formatCurrency(data.avgTransaction);
+        document.getElementById('reportProfitMargin').textContent = data.profitMargin + '%';
+
+        // Update trend indicators
+        this.updateTrendIndicators(data);
+    },
+
+    // Update Trend Indicators
+    updateTrendIndicators(data) {
+        const elements = document.querySelectorAll('.badge');
+        elements.forEach(badge => {
+            const trend = Math.random() > 0.5 ? 'up' : 'down';
+            const percentage = Math.floor(Math.random() * 10) + 1;
+            badge.className = `badge bg-${trend === 'up' ? 'success' : 'danger'} me-2`;
+            badge.textContent = `${trend === 'up' ? '+' : '-'}${percentage}%`;
+        });
+    },
+
+    // Update Charts
+    updateCharts() {
+        // Sales Report Chart Update
+        const salesChart = Chart.getChart('salesReportChart');
+        if (salesChart) {
+            const newData = this.generateRandomData(12);
+            salesChart.data.datasets[0].data = newData.sales;
+            salesChart.data.datasets[1].data = newData.transactions;
+            salesChart.update();
+        }
+
+        // Inventory Report Chart Update
+        const inventoryChart = Chart.getChart('inventoryMovementChart');
+        if (inventoryChart) {
+            const newData = this.generateRandomData(30);
+            inventoryChart.data.datasets.forEach((dataset, index) => {
+                dataset.data = newData.inventory[index];
+            });
+            inventoryChart.update();
+        }
+
+        // Staff Report Chart Update
+        const staffChart = Chart.getChart('staffPerformanceReportChart');
+        if (staffChart) {
+            const newData = this.generateRandomData(6);
+            staffChart.data.datasets.forEach((dataset, index) => {
+                dataset.data = newData.performance[index];
+            });
+            staffChart.update();
+        }
+
+        // Financial Report Chart Update
+        const financialChart = Chart.getChart('profitLossChart');
+        if (financialChart) {
+            const newData = this.generateRandomData(12);
+            financialChart.data.datasets[0].data = newData.revenue;
+            financialChart.data.datasets[1].data = newData.expenses;
+            financialChart.data.datasets[2].data = newData.revenue.map((rev, i) => 
+                rev - newData.expenses[i]);
+            financialChart.update();
+        }
+    },
+
+    // Generate Random Data for Charts
+    generateRandomData(points) {
+        return {
+            sales: Array(points).fill(0).map(() => Math.floor(Math.random() * 50000000) + 100000000),
+            transactions: Array(points).fill(0).map(() => Math.floor(Math.random() * 500) + 1000),
+            inventory: [
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 50) + 50),
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 50) + 50),
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 50) + 50),
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 50) + 50)
+            ],
+            performance: [
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 20) + 80),
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 20) + 80),
+                Array(points).fill(0).map(() => Math.floor(Math.random() * 20) + 80)
+            ],
+            revenue: Array(points).fill(0).map(() => Math.floor(Math.random() * 50000000) + 150000000),
+            expenses: Array(points).fill(0).map(() => Math.floor(Math.random() * 30000000) + 100000000)
+        };
+    },
+
+    // Start Real-time Updates
+    startRealTimeUpdates() {
+        setInterval(() => {
+            this.updateReportData();
+        }, 30000); // Update every 30 seconds
+    },
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    ReportGenerator.initialize();
+});
